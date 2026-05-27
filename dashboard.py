@@ -356,6 +356,122 @@ with g4:
 
     st.plotly_chart(fig_distance, use_container_width=True)
 
+
+# =====================================================
+# ================= SMART ANALYTICS ===================
+# =====================================================
+
+st.subheader("🧠 Smart Vehicle Analytics")
+
+# ================= SAFETY SCORE =================
+
+safety_score = 100
+
+if data["accident"]:
+    safety_score -= 50
+
+if data["alcoholDetected"]:
+    safety_score -= 25
+
+if data["obstacleDetected"]:
+    safety_score -= 15
+
+if data["gpsSpeed"] > 80:
+    safety_score -= 10
+
+if data["totalAccel"] > 2:
+    safety_score -= 10
+
+safety_score = max(safety_score, 0)
+
+# ================= ROAD CONDITION =================
+
+road_condition = "Smooth Road"
+
+if data["totalAccel"] > 1.4:
+    road_condition = "Rough Road"
+
+if data["totalAccel"] > 2:
+    road_condition = "Possible Pothole"
+
+# ================= DISPLAY =================
+
+a1, a2, a3 = st.columns(3)
+
+# ================= SAFETY SCORE =================
+
+with a1:
+
+    st.metric("Driver Safety Score", f"{safety_score}/100")
+
+    st.progress(safety_score / 100)
+
+# ================= ROAD CONDITION =================
+
+with a2:
+
+    if road_condition == "Smooth Road":
+        st.success(road_condition)
+
+    elif road_condition == "Rough Road":
+        st.warning(road_condition)
+
+    else:
+        st.error(road_condition)
+
+# ================= SYSTEM HEALTH =================
+
+with a3:
+
+    system_health = "GOOD"
+
+    if data["accident"] or data["alcoholDetected"]:
+        system_health = "CRITICAL"
+
+    elif data["obstacleDetected"]:
+        system_health = "WARNING"
+
+    if system_health == "GOOD":
+        st.success("System Healthy")
+
+    elif system_health == "WARNING":
+        st.warning("System Warning")
+
+    else:
+        st.error("Critical Condition")
+
+# =====================================================
+# ================= SENSOR BARS =======================
+# =====================================================
+
+st.subheader("📊 Sensor Intensity")
+
+b1, b2 = st.columns(2)
+
+# ================= MQ3 LEVEL =================
+
+with b1:
+
+    st.write("Alcohol Sensor Level")
+
+    mq3_percent = min(data["mq3_raw"] / 4095, 1.0)
+
+    st.progress(mq3_percent)
+
+    st.write(f"{round(mq3_percent * 100, 1)} %")
+
+# ================= ACCELERATION LEVEL =================
+
+with b2:
+
+    st.write("Acceleration Severity")
+
+    accel_percent = min(data["totalAccel"] / 5, 1.0)
+
+    st.progress(accel_percent)
+
+    st.write(f"{round(accel_percent * 100, 1)} %")
+
 # =====================================================
 # ================= LIVE SENSOR GRAPHS ================
 # =====================================================
